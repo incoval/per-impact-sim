@@ -11,6 +11,14 @@ export const ABATTEMENT_TAUX = 0.10;
 export const ABATTEMENT_MIN = 504;
 export const ABATTEMENT_MAX = 14426;
 
+// Plafond PER : 10% du revenu net imposable, plafonné à 48 000 €
+export const PER_PLAFOND_TAUX = 0.10;
+export const PER_PLAFOND_MAX = 48000;
+
+export function computePlafondPER(revenuNet: number): number {
+  return Math.min(revenuNet * PER_PLAFOND_TAUX, PER_PLAFOND_MAX);
+}
+
 export function computeAbattement(revenuNet: number): number {
   const raw = revenuNet * ABATTEMENT_TAUX;
   return Math.min(Math.max(raw, ABATTEMENT_MIN), ABATTEMENT_MAX);
