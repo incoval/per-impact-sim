@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { computeIRWithPER } from '@/lib/tax-engine';
+import { computeIRWithPER, computePlafondPER } from '@/lib/tax-engine';
 import { exportPDF } from '@/lib/export-pdf';
 import ClientInfo, { type ClientData } from './ClientInfo';
 import Hypotheses from './Hypotheses';
@@ -16,9 +16,15 @@ const DEFAULTS = {
 
 export default function PERSimulator() {
   const [client, setClient] = useState<ClientData>({ nom: '', prenom: '', age: '' });
-  const [revenuNet, setRevenuNet] = useState(DEFAULTS.revenuNet);
+  const [revenuNet, setRevenuNetRaw] = useState(DEFAULTS.revenuNet);
   const [versementPER, setVersementPER] = useState(DEFAULTS.versementPER);
   const [parts, setParts] = useState(DEFAULTS.parts);
+
+  const setRevenuNet = (v: number) => {
+    setRevenuNetRaw(v);
+    const plafond = computePlafondPER(v);
+    setVersementPER((prev) => Math.min(prev, plafond));
+  };
 
   const result = useMemo(
     () => computeIRWithPER(revenuNet, versementPER, parts),
@@ -26,7 +32,7 @@ export default function PERSimulator() {
   );
 
   const handleReset = () => {
-    setRevenuNet(DEFAULTS.revenuNet);
+    setRevenuNetRaw(DEFAULTS.revenuNet);
     setVersementPER(DEFAULTS.versementPER);
     setParts(DEFAULTS.parts);
     setClient({ nom: '', prenom: '', age: '' });

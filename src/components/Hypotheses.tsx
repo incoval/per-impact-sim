@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { RotateCcw, FileDown, Info } from 'lucide-react';
-import { formatEuro } from '@/lib/tax-engine';
+import { formatEuro, computePlafondPER } from '@/lib/tax-engine';
 
 interface HypothesesProps {
   revenuNet: number;
@@ -66,23 +66,23 @@ export default function Hypotheses({
       <div className="space-y-2">
         <Label className="text-sm font-medium">
           Versement PER annuel
-          <InfoTooltip text="Le gain dépend de votre tranche marginale d'imposition." />
+          <InfoTooltip text="Le gain dépend de votre tranche marginale d'imposition. Plafond : 10% du revenu net, max 48 000 €." />
         </Label>
         <Input
           type="number"
           value={versementPER}
-          onChange={(e) => setVersementPER(Math.max(0, Number(e.target.value)))}
+          onChange={(e) => setVersementPER(Math.max(0, Math.min(Number(e.target.value), computePlafondPER(revenuNet))))}
           className="font-mono"
         />
         <Slider
           value={[versementPER]}
           onValueChange={([v]) => setVersementPER(v)}
           min={0}
-          max={50000}
+          max={computePlafondPER(revenuNet)}
           step={100}
         />
         <p className="text-xs text-muted-foreground">
-          Soit {formatEuro(Math.round(versementPER / 12))} / mois
+          Soit {formatEuro(Math.round(versementPER / 12))} / mois — Plafond : {formatEuro(computePlafondPER(revenuNet))}
         </p>
       </div>
 
