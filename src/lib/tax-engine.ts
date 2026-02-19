@@ -12,11 +12,14 @@ export const ABATTEMENT_MIN = 504;
 export const ABATTEMENT_MAX = 14426;
 
 // Plafond PER : 10% du revenu net imposable, plafonné à 48 000 €
+// Plafond PER : 4 800 € minimum, ou 10% du revenu net si > 48 000 €
+export const PER_PLAFOND_MIN = 4800;
+export const PER_PLAFOND_SEUIL = 48000;
 export const PER_PLAFOND_TAUX = 0.10;
-export const PER_PLAFOND_MAX = 48000;
 
 export function computePlafondPER(revenuNet: number): number {
-  return Math.min(revenuNet * PER_PLAFOND_TAUX, PER_PLAFOND_MAX);
+  if (revenuNet <= PER_PLAFOND_SEUIL) return PER_PLAFOND_MIN;
+  return revenuNet * PER_PLAFOND_TAUX;
 }
 
 export function computeAbattement(revenuNet: number): number {
@@ -157,7 +160,9 @@ export function generateScenarios(
 }
 
 export function formatEuro(n: number): string {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+    .format(n)
+    .replace(/\u202F/g, ' ');
 }
 
 export function formatPct(n: number): string {
