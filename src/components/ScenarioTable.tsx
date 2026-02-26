@@ -5,10 +5,11 @@ interface ScenarioTableProps {
   revenuNet: number;
   versementPER: number;
   parts: number;
+  report5ans: boolean;
 }
 
-export default function ScenarioTable({ revenuNet, versementPER, parts }: ScenarioTableProps) {
-  const scenarios = generateScenarios(revenuNet, versementPER, parts);
+export default function ScenarioTable({ revenuNet, versementPER, parts, report5ans }: ScenarioTableProps) {
+  const scenarios = generateScenarios(revenuNet, versementPER, parts, report5ans);
 
   return (
     <div className="rounded-xl bg-card card-shadow overflow-hidden">

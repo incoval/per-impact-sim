@@ -1,17 +1,19 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { computeIRWithPER, generateScenarios, formatEuro, formatPct } from './tax-engine';
+import { computeIRWithPER, generateScenarios, formatEuro, formatPct, computePlafondTotal } from './tax-engine';
 import type { ClientData } from '@/components/ClientInfo';
 
 export function exportPDF(
   client: ClientData,
   revenuNet: number,
   versementPER: number,
-  parts: number
+  parts: number,
+  report5ans: boolean = false
 ) {
   const doc = new jsPDF('p', 'mm', 'a4');
   const { avant, apres, gain } = computeIRWithPER(revenuNet, versementPER, parts);
-  const scenarios = generateScenarios(revenuNet, versementPER, parts);
+  const scenarios = generateScenarios(revenuNet, versementPER, parts, report5ans);
+  const plafondTotal = computePlafondTotal(revenuNet, report5ans);
   const now = new Date().toLocaleDateString('fr-FR');
 
   const margin = 20;
@@ -48,6 +50,7 @@ export function exportPDF(
   const params = [
     `Revenu net annuel : ${formatEuro(revenuNet)}`,
     `Versement PER : ${formatEuro(versementPER)}`,
+    `Plafond PER : ${formatEuro(plafondTotal)}${report5ans ? ' (report 5 ans)' : ''}`,
     `Parts fiscales : ${parts}`,
     `Abattement 10% : min 504 €, max 14 426 €`,
     `Barème : IR 2025`,

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { computeIRWithPER, computePlafondPER } from '@/lib/tax-engine';
+import { computeIRWithPER, computePlafondTotal } from '@/lib/tax-engine';
 import { exportPDF } from '@/lib/export-pdf';
 import ClientInfo, { type ClientData } from './ClientInfo';
 import Hypotheses from './Hypotheses';
@@ -12,6 +12,7 @@ const DEFAULTS = {
   revenuNet: 40000,
   versementPER: 4100,
   parts: 1,
+  report5ans: false,
 };
 
 export default function PERSimulator() {
@@ -19,10 +20,17 @@ export default function PERSimulator() {
   const [revenuNet, setRevenuNetRaw] = useState(DEFAULTS.revenuNet);
   const [versementPER, setVersementPER] = useState(DEFAULTS.versementPER);
   const [parts, setParts] = useState(DEFAULTS.parts);
+  const [report5ans, setReport5ans] = useState(DEFAULTS.report5ans);
 
   const setRevenuNet = (v: number) => {
     setRevenuNetRaw(v);
-    const plafond = computePlafondPER(v);
+    const plafond = computePlafondTotal(v, report5ans);
+    setVersementPER((prev) => Math.min(prev, plafond));
+  };
+
+  const handleReport5ansChange = (v: boolean) => {
+    setReport5ans(v);
+    const plafond = computePlafondTotal(revenuNet, v);
     setVersementPER((prev) => Math.min(prev, plafond));
   };
 
@@ -35,6 +43,7 @@ export default function PERSimulator() {
     setRevenuNetRaw(DEFAULTS.revenuNet);
     setVersementPER(DEFAULTS.versementPER);
     setParts(DEFAULTS.parts);
+    setReport5ans(DEFAULTS.report5ans);
     setClient({ nom: '', prenom: '', age: '' });
   };
 
@@ -43,7 +52,7 @@ export default function PERSimulator() {
       toast.error('Veuillez remplir les informations client (Nom, Prénom, Âge) avant l\'export.');
       return;
     }
-    exportPDF(client, revenuNet, versementPER, parts);
+    exportPDF(client, revenuNet, versementPER, parts, report5ans);
     toast.success('PDF exporté avec succès !');
   };
 
@@ -76,7 +85,7 @@ export default function PERSimulator() {
               riAvant={result.avant.revenuImposable}
               riApres={result.apres.revenuImposable}
             />
-            <ScenarioTable revenuNet={revenuNet} versementPER={versementPER} parts={parts} />
+            <ScenarioTable revenuNet={revenuNet} versementPER={versementPER} parts={parts} report5ans={report5ans} />
           </div>
 
           {/* Right - Hypotheses */}
@@ -89,6 +98,8 @@ export default function PERSimulator() {
                 setVersementPER={setVersementPER}
                 parts={parts}
                 setParts={setParts}
+                report5ans={report5ans}
+                setReport5ans={handleReport5ansChange}
                 onReset={handleReset}
                 onExportPDF={handleExportPDF}
               />
