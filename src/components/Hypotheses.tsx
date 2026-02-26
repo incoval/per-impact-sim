@@ -4,8 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
 import { RotateCcw, FileDown, Info } from 'lucide-react';
-import { formatEuro, computePlafondPER } from '@/lib/tax-engine';
+import { formatEuro, computePlafondTotal } from '@/lib/tax-engine';
 
 interface HypothesesProps {
   revenuNet: number;
@@ -14,6 +15,8 @@ interface HypothesesProps {
   setVersementPER: (v: number) => void;
   parts: number;
   setParts: (v: number) => void;
+  report5ans: boolean;
+  setReport5ans: (v: boolean) => void;
   onReset: () => void;
   onExportPDF: () => void;
 }
@@ -34,9 +37,13 @@ export default function Hypotheses({
   setVersementPER,
   parts,
   setParts,
+  report5ans,
+  setReport5ans,
   onReset,
   onExportPDF,
 }: HypothesesProps) {
+  const plafondTotal = computePlafondTotal(revenuNet, report5ans);
+
   return (
     <div className="rounded-xl bg-card card-shadow p-5 space-y-6">
       <h3 className="text-lg font-semibold">Hypothèses</h3>
@@ -62,27 +69,49 @@ export default function Hypotheses({
         />
       </div>
 
+      {/* Report 5 ans */}
+      <div className="flex items-start gap-2">
+        <Checkbox
+          id="report5ans"
+          checked={report5ans}
+          onCheckedChange={(checked) => setReport5ans(checked === true)}
+        />
+        <div className="grid gap-1 leading-none">
+          <label
+            htmlFor="report5ans"
+            className="text-sm font-medium cursor-pointer leading-snug"
+          >
+            Aucun versement PER ces 5 dernières années
+            <InfoTooltip text="Si vous n'avez jamais versé sur un PER durant les 5 dernières années, vous pouvez cumuler les plafonds annuels non utilisés (x5)." />
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Report du plafond sur 5 ans
+          </p>
+        </div>
+      </div>
+
       {/* Versement PER */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">
           Versement PER annuel
-          <InfoTooltip text="Le gain dépend de votre tranche marginale d'imposition. Plafond : 10% du revenu net, max 48 000 €." />
+          <InfoTooltip text="Le gain dépend de votre tranche marginale d'imposition. Déduction sur le revenu imposable, plafonnée." />
         </Label>
         <Input
           type="number"
           value={versementPER}
-          onChange={(e) => setVersementPER(Math.max(0, Math.min(Number(e.target.value), computePlafondPER(revenuNet))))}
+          onChange={(e) => setVersementPER(Math.max(0, Math.min(Number(e.target.value), plafondTotal)))}
           className="font-mono"
         />
         <Slider
           value={[versementPER]}
           onValueChange={([v]) => setVersementPER(v)}
           min={0}
-          max={computePlafondPER(revenuNet)}
+          max={plafondTotal}
           step={100}
         />
         <p className="text-xs text-muted-foreground">
-          Soit {formatEuro(Math.round(versementPER / 12))} / mois — Plafond : {formatEuro(computePlafondPER(revenuNet))}
+          Soit {formatEuro(Math.round(versementPER / 12))} / mois — Plafond : {formatEuro(plafondTotal)}
+          {report5ans && ' (report 5 ans)'}
         </p>
       </div>
 
@@ -107,6 +136,7 @@ export default function Hypotheses({
       <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground">
         <p className="font-medium text-foreground mb-1">Barème IR 2025</p>
         <p>Abattement 10% appliqué au revenu net annuel (min 504 €, max 14 426 €).</p>
+        <p>Plafond déduction PER : max 29 316 €/an.</p>
       </div>
 
       {/* Actions */}
