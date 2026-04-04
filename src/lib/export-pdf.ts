@@ -53,7 +53,7 @@ export function exportPDF(
     `Plafond PER : ${formatEuro(plafondTotal)}${report5ans ? ' (report 5 ans)' : ''}`,
     `Parts fiscales : ${parts}`,
     `Abattement 10% : min 504 €, max 14 426 €`,
-    `Barème : IR 2025`,
+    `Barème : IR 2026`,
   ];
   params.forEach((p) => {
     doc.text(p, margin, y);

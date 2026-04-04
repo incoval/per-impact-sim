@@ -109,7 +109,7 @@ export default function PERSimulator() {
       </main>
 
       <footer className="border-t border-border mt-12 py-4 text-center text-xs text-muted-foreground">
-        Barème IR 2025 — Calcul simplifié, hors décote et contributions exceptionnelles.
+        Barème IR 2026 — Calcul simplifié, hors décote et contributions exceptionnelles.
       </footer>
     </div>
   );

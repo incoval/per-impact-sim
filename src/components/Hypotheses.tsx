@@ -134,7 +134,7 @@ export default function Hypotheses({
 
       {/* Barème */}
       <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground">
-        <p className="font-medium text-foreground mb-1">Barème IR 2025</p>
+        <p className="font-medium text-foreground mb-1">Barème IR 2026</p>
         <p>Abattement 10% appliqué au revenu net annuel (min 504 €, max 14 426 €).</p>
         <p>Plafond déduction PER : max 29 316 €/an.</p>
       </div>
