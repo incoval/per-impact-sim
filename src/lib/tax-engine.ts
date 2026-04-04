@@ -1,10 +1,10 @@
-// Barème IR 2025 (France) - tranches par part
+// Barème IR 2026 (France) - tranches par part (revenus 2025)
 export const TRANCHES_IR_2025 = [
-  { min: 0, max: 11294, taux: 0 },
-  { min: 11294, max: 28797, taux: 0.11 },
-  { min: 28797, max: 82341, taux: 0.30 },
-  { min: 82341, max: 177106, taux: 0.41 },
-  { min: 177106, max: Infinity, taux: 0.45 },
+  { min: 0, max: 11600, taux: 0 },
+  { min: 11600, max: 29580, taux: 0.11 },
+  { min: 29580, max: 84578, taux: 0.30 },
+  { min: 84578, max: 169156, taux: 0.41 },
+  { min: 169156, max: Infinity, taux: 0.45 },
 ];
 
 export const ABATTEMENT_TAUX = 0.10;
