@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import IncomeEntry from './IncomeEntry';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,32 +44,18 @@ export default function Hypotheses({
   onReset,
   onExportPDF,
 }: HypothesesProps) {
+  const [couple, setCouple] = useState(false);
   const plafondTotal = computePlafondTotal(revenuNet, report5ans);
 
   return (
     <div className="rounded-xl bg-card card-shadow p-5 space-y-6">
       <h3 className="text-lg font-semibold">Hypothèses</h3>
 
-      {/* Revenu net */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Revenu net annuel (avant IR)
-          <InfoTooltip text="Base de calcul, avant abattement 10%. Le PER peut réduire votre revenu imposable (sous conditions)." />
-        </Label>
-        <Input
-          type="number"
-          value={revenuNet}
-          onChange={(e) => setRevenuNet(Math.max(0, Number(e.target.value)))}
-          className="font-mono"
-        />
-        <Slider
-          value={[revenuNet]}
-          onValueChange={([v]) => setRevenuNet(v)}
-          min={0}
-          max={200000}
-          step={500}
-        />
-      </div>
+      <IncomeEntry revenuNet={revenuNet} onChange={setRevenuNet}
+        couple={couple} onCoupleChange={(value) => {
+          setCouple(value);
+          if (value) setParts(Math.max(2, parts));
+        }} />
 
       {/* Report 5 ans */}
       <div className="flex items-start gap-2">
@@ -118,18 +106,19 @@ export default function Hypotheses({
       {/* Parts */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">Situation familiale / parts</Label>
-        <Select value={String(parts)} onValueChange={(v) => setParts(Number(v))}>
+        <Select value={String(parts)} onValueChange={(v) => setParts(Math.max(couple ? 2 : 1, Number(v)))}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">1 part (célibataire)</SelectItem>
-            <SelectItem value="1.5">1,5 parts</SelectItem>
+            <SelectItem value="1" disabled={couple}>1 part (célibataire)</SelectItem>
+            <SelectItem value="1.5" disabled={couple}>1,5 parts</SelectItem>
             <SelectItem value="2">2 parts (marié/pacsé)</SelectItem>
             <SelectItem value="2.5">2,5 parts</SelectItem>
             <SelectItem value="3">3 parts</SelectItem>
           </SelectContent>
         </Select>
+        {couple && <p className="text-xs text-muted-foreground">Un foyer marié ou pacsé compte au minimum 2 parts fiscales.</p>}
       </div>
 
       {/* Barème */}

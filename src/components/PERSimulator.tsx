@@ -5,8 +5,9 @@ import ClientInfo, { type ClientData } from './ClientInfo';
 import Hypotheses from './Hypotheses';
 import KPICards from './KPICards';
 import ScenarioTable from './ScenarioTable';
-import TaxChart from './TaxChart';
 import { toast } from 'sonner';
+import { computePERRecommendation } from '@/lib/per-recommendation';
+import PERRecommendation from './PERRecommendation';
 
 const DEFAULTS = {
   revenuNet: 40000,
@@ -16,6 +17,7 @@ const DEFAULTS = {
 };
 
 export default function PERSimulator() {
+  const [resetKey, setResetKey] = useState(0);
   const [client, setClient] = useState<ClientData>({ nom: '', prenom: '', age: '' });
   const [revenuNet, setRevenuNetRaw] = useState(DEFAULTS.revenuNet);
   const [versementPER, setVersementPER] = useState(DEFAULTS.versementPER);
@@ -39,7 +41,12 @@ export default function PERSimulator() {
     [revenuNet, versementPER, parts]
   );
 
+  const recommendation = useMemo(() => computePERRecommendation({
+    year: 2026, revenuNet, versementPER, parts, report5ans,
+  }), [revenuNet, versementPER, parts, report5ans]);
+
   const handleReset = () => {
+    setResetKey((key) => key + 1);
     setRevenuNetRaw(DEFAULTS.revenuNet);
     setVersementPER(DEFAULTS.versementPER);
     setParts(DEFAULTS.parts);
@@ -79,12 +86,7 @@ export default function PERSimulator() {
           {/* Left - Results */}
           <div className="lg:col-span-2 space-y-6">
             <KPICards avant={result.avant} apres={result.apres} gain={result.gain} />
-            <TaxChart
-              impotAvant={result.avant.impot}
-              impotApres={result.apres.impot}
-              riAvant={result.avant.revenuImposable}
-              riApres={result.apres.revenuImposable}
-            />
+            <PERRecommendation recommendations={[recommendation]} onApply={(_, amount) => setVersementPER(amount)} />
             <ScenarioTable revenuNet={revenuNet} versementPER={versementPER} parts={parts} report5ans={report5ans} />
           </div>
 
@@ -92,6 +94,7 @@ export default function PERSimulator() {
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24">
               <Hypotheses
+                key={resetKey}
                 revenuNet={revenuNet}
                 setRevenuNet={setRevenuNet}
                 versementPER={versementPER}

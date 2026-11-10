@@ -65,7 +65,7 @@ export default function KPICards({ avant, apres, gain }: KPICardsProps) {
         />
       </div>
 
-      <div className="flex items-center gap-2 rounded-lg bg-card p-3 card-shadow text-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg bg-card p-3 card-shadow text-sm">
         <span className="text-muted-foreground">TMI avant :</span>
         <span className="font-bold">{formatPct(tmiBefore)}</span>
         <ArrowRight className="h-4 w-4 text-muted-foreground" />
